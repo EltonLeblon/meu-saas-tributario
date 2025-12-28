@@ -56,6 +56,7 @@ st.bar_chart(data=dados_grafico, x='Tipo', y='Valor')
 st.divider() # Linha divisória
 
 # 4. ÁREA DO BOTÃO PDF (Garantindo que apareça)
+# 4. ÁREA DO BOTÃO PDF
 st.subheader("Gerar Documento Oficial")
 try:
     dados_para_relatorio = {
@@ -65,11 +66,13 @@ try:
         "valor_liquido": valor_liquido
     }
     
-    pdf_download = gerar_pdf(dados_para_relatorio)
+    # Geramos o PDF (que retorna um bytearray)
+    pdf_output = gerar_pdf(dados_para_relatorio)
     
+    # A MUDANÇA ESTÁ AQUI: envolvemos pdf_output em bytes()
     st.download_button(
         label="📥 Baixar Planejamento em PDF",
-        data=pdf_download,
+        data=bytes(pdf_output), 
         file_name="planejamento_fiscal_2026.pdf",
         mime="application/pdf"
     )
