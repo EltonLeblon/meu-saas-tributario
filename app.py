@@ -22,7 +22,7 @@ def gerar_pdf(dados):
     pdf.cell(0, 10, f"Valor Liquido Estimado: R$ {dados['valor_liquido']:.2f}", ln=True)
     
     # Retorna os bytes do PDF
-    return pdf.output(dest='S').encode('latin-1')
+    return pdf.output()
 
 # 3. Interface Principal
 st.title("🛡️ Simulador de Sobrevivência: Reforma 2026")
