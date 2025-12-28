@@ -37,4 +37,44 @@ dados_grafico = pd.DataFrame({
 })
 st.bar_chart(data=dados_grafico, x='Tipo', y='Valor')
 
-st.info("💡 **Dica de Negócio:** Com a Reforma, o imposto é retido na hora (Split Payment). Este SaaS ajuda você a planejar o seu preço de venda para não ficar no prejuízo.")
+st.info("💡 **Dica de Negócio:** Com a Reforma, o imposto é retido na hora (Split Payment). Este SaaS ajuda você a planejar o seu preço de venda para não ficar no prejuízo.")from fpdf import FPDF
+import streamlit as st
+
+# Função para criar o PDF
+def gerar_pdf(dados):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(40, 10, "Relatório de Planejamento Fiscal 2026")
+    pdf.ln(20)
+    
+    pdf.set_font("Arial", "", 12)
+    pdf.cell(40, 10, f"Categoria de Serviço: {dados['categoria']}")
+    pdf.ln(10)
+    pdf.cell(40, 10, f"Valor Bruto: R$ {dados['valor_bruto']:.2f}")
+    pdf.ln(10)
+    pdf.cell(40, 10, f"Imposto Retido (IBS/CBS): R$ {dados['imposto']:.2f}")
+    pdf.ln(10)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(40, 10, f"Valor Líquido na Conta: R$ {dados['valor_liquido']:.2f}")
+    
+    return pdf.output(dest='S').encode('latin-1')
+
+# --- DENTRO DO SEU CÓDIGO APP.PY (Onde aparecem os resultados) ---
+
+# Prepare os dados para o PDF
+dados_para_relatorio = {
+    "categoria": categoria,
+    "valor_bruto": valor_venda,
+    "imposto": valor_imposto,
+    "valor_liquido": valor_liquido
+}
+
+# Botão de Download
+pdf_bytes = gerar_pdf(dados_para_relatorio)
+st.download_button(
+    label="📥 Baixar Planejamento em PDF",
+    data=pdf_bytes,
+    file_name="planejamento_fiscal.pdf",
+    mime="application/pdf"
+)
