@@ -100,9 +100,12 @@ with c2:
         'Categoria': ['Líquido', 'IVA (Imposto)', 'INSS'],
         'Valor': [valor_liquido, valor_imposto, inss]
     })
-    st.bar_chart(df_pizza, x='Categoria', y='Valor', color=['#2ecc71', '#e74c3c', '#f1c40f'])
-
-st.divider()
+    st.bar_chart(
+        df_pizza, 
+        x='Categoria', 
+        y='Valor', 
+        color='Categoria'  # Primeiro dizemos para colorir POR categoria
+    )
 
 # 4. Dados e Botão
 dados_relatorio = {
