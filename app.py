@@ -83,7 +83,7 @@ with col_logo:
     if os.path.exists(caminho_logo):
         st.image(caminho_logo, width=120)
 with col_titulo:
-    st.title("Simulador Fiscal Elton Leblon")
+    st.title("Simulador Fiscal")
     st.write("Estratégia e Inteligência Tributária para o seu negócio.")
 
 st.divider()
