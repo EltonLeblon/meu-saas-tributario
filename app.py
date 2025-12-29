@@ -3,38 +3,53 @@ import pandas as pd
 from fpdf import FPDF
 import os
 
-# 1. Configuração da página
-st.set_page_config(page_title="SaaS Fiscal Elton", page_icon="💼", layout="wide")
+# 1. Configuração da página e Estilo Customizado
+st.set_page_config(page_title="SaaS Fiscal Elton", page_icon="💰", layout="wide")
+
+# CSS para mudar a cor do botão e headers
+st.markdown("""
+    <style>
+    .stButton>button {
+        background-color: #003366;
+        color: white;
+        border-radius: 10px;
+    }
+    h1, h2, h3 {
+        color: #003366;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 # 2. Função para gerar o PDF Profissional
 def gerar_pdf(dados):
     pdf = FPDF()
     pdf.add_page()
     
-    # Se a logo existir, coloca no PDF também
-    if os.path.exists("logo.png"):
-        pdf.image("logo.png", 10, 8, 33)
+    diretorio_root = os.path.dirname(os.path.abspath(__file__))
+    caminho_da_logo = os.path.join(diretorio_root, "logo.png")
+    
+    if os.path.exists(caminho_da_logo):
+        pdf.image(caminho_da_logo, 10, 8, 33)
         pdf.ln(20)
 
     pdf.set_font("helvetica", "B", 20)
-    pdf.set_text_color(0, 51, 102) # Azul Marinho
-    pdf.cell(0, 15, "RELATÓRIO DE PLANEJAMENTO FISCAL", align='C', new_x="LMARGIN", new_y="NEXT")
+    pdf.set_text_color(0, 51, 102)
+    pdf.cell(0, 15, "PLANEJAMENTO FISCAL E PREVIDENCIÁRIO", align='C', new_x="LMARGIN", new_y="NEXT")
     pdf.ln(10)
     
-    # Tabela de Dados
     pdf.set_font("helvetica", "", 12)
     pdf.set_text_color(0, 0, 0)
     
-    # Cabeçalho da tabela
     pdf.set_fill_color(200, 220, 255)
-    pdf.cell(100, 10, "Item de Análise", border=1, fill=True)
+    pdf.cell(100, 10, "Descrição dos Valores", border=1, fill=True)
     pdf.cell(90, 10, "Valor Estimado", border=1, fill=True, new_x="LMARGIN", new_y="NEXT")
     
     itens = [
-        ("Setor de Atuação", dados['categoria']),
+        ("Setor", dados['categoria']),
         ("Faturamento Bruto", f"R$ {dados['valor_bruto']:,.2f}"),
-        ("Alíquota IVA (2026)", f"{dados['aliquota']}%"),
-        ("Imposto Retido (Split Payment)", f"R$ {dados['imposto']:,.2f}")
+        ("Alíquota IVA", f"{dados['aliquota']}%"),
+        ("Retenção IVA", f"R$ {dados['imposto']:,.2f}"),
+        ("Contribuição INSS", f"R$ {dados['inss']:,.2f}")
     ]
     
     for item, valor in itens:
@@ -43,57 +58,71 @@ def gerar_pdf(dados):
     
     pdf.ln(10)
     pdf.set_font("helvetica", "B", 14)
-    pdf.cell(0, 10, f"SALDO LÍQUIDO A RECEBER: R$ {dados['valor_liquido']:,.2f}", align='R')
+    pdf.set_text_color(46, 125, 50)
+    pdf.cell(0, 10, f"SALDO LÍQUIDO FINAL: R$ {dados['valor_liquido']:,.2f}", align='R')
     
     return pdf.output()
 
-# 3. Interface Visual do Site
-# Exibição da Logo no Site
+# 3. Interface Visual
+diretorio_root = os.path.dirname(os.path.abspath(__file__))
+caminho_da_logo = os.path.join(diretorio_root, "logo.png")
+
 col_logo, col_titulo = st.columns([1, 4])
 with col_logo:
-    if os.path.exists("logo.png"):
-        st.image("logo.png", width=150)
+    if os.path.exists(caminho_da_logo):
+        st.image(caminho_da_logo, width=120)
 with col_titulo:
-    st.title("Simulador Fiscal Inteligente")
-    st.write("Prepare o seu negócio para a transição tributária de 2026.")
+    st.title("Simulador Fiscal & Previdenciário 2026")
+    st.write("Análise completa de recebíveis para Profissionais Autônomos.")
 
 st.divider()
 
 # Colunas de entrada
 c1, c2 = st.columns(2)
 with c1:
-    st.subheader("📝 Dados do Contrato")
-    valor_venda = st.number_input("Valor Bruto do Serviço (R$)", min_value=0.0, value=5000.0)
-    categoria = st.selectbox("Tipo de Serviço", ["TI & Software", "Consultoria", "Engenharia", "Marketing"])
-    aliquota = st.slider("Alíquota IVA (%)", 25.0, 30.0, 27.5)
+    st.subheader("📝 Configurações")
+    valor_venda = st.number_input("Valor total do serviço (R$)", min_value=0.0, value=10000.0)
+    categoria = st.selectbox("Área de Atuação", ["Engenharia", "Advocacia", "Arquitetura", "Tecnologia", "Saúde"])
+    aliquota = st.slider("Alíquota IVA prevista (%)", 25.0, 30.0, 27.5)
+    
+    calc_inss = st.checkbox("Deseja calcular INSS (Autônomo)?", value=True)
+    inss = (valor_venda * 0.11) if calc_inss else 0.0 # Exemplo de 11%
 
 valor_imposto = valor_venda * (aliquota / 100)
-valor_liquido = valor_venda - valor_imposto
+valor_liquido = valor_venda - valor_imposto - inss
 
 with c2:
-    st.subheader("💰 Resumo Financeiro")
-    st.metric("Receita Líquida", f"R$ {valor_liquido:,.2f}", help="Valor que sobrará após a retenção automática.")
-    st.progress(valor_liquido/valor_venda)
-    st.caption(f"O governo reterá R$ {valor_imposto:,.2f} automaticamente via Split Payment.")
+    st.subheader("💰 Resultado Detalhado")
+    st.metric("Líquido na Conta", f"R$ {valor_liquido:,.2f}")
+    
+    # Gráfico de pizza para melhor visualização
+    df_pizza = pd.DataFrame({
+        'Categoria': ['Líquido', 'IVA (Imposto)', 'INSS'],
+        'Valor': [valor_liquido, valor_imposto, inss]
+    })
+    st.bar_chart(df_pizza, x='Categoria', y='Valor', color=['#2ecc71', '#e74c3c', '#f1c40f'])
 
-# Botão de Download Grande
 st.divider()
+
+# 4. Dados e Botão
 dados_relatorio = {
     "categoria": categoria,
     "valor_bruto": valor_venda,
     "imposto": valor_imposto,
+    "inss": inss,
     "valor_liquido": valor_liquido,
     "aliquota": aliquota
 }
 
-if st.button("🚀 Gerar Relatório agora"):
+st.subheader("📄 Exportação")
+if st.button("Gerar Planejamento em PDF"):
     pdf_res = gerar_pdf(dados_relatorio)
     st.download_button(
-        label="✅ Clique aqui para baixar o PDF",
+        label="📥 Baixar agora",
         data=bytes(pdf_res),
-        file_name="Planejamento_Fiscal_2026.pdf",
+        file_name="Planejamento_Completo_2026.pdf",
         mime="application/pdf"
     )
 
 st.sidebar.markdown("---")
-st.sidebar.write("Desenvolvido por **Elton Leblon**")
+st.sidebar.info("Este simulador considera o Split Payment da Reforma Tributária.")
