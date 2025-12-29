@@ -4,7 +4,7 @@ from fpdf import FPDF
 import os
 
 # 1. Configuração da página e Estilo
-st.set_page_config(page_title="SaaS Fiscal Elton", page_icon="💰", layout="wide")
+st.set_page_config(page_title="Simulador Fiscal", page_icon="💰", layout="wide")
 
 st.markdown("""
     <style>
@@ -83,6 +83,7 @@ with col_logo:
     if os.path.exists(caminho_logo):
         st.image(caminho_logo, width=120)
 with col_titulo:
+    # NOME ALTERADO AQUI
     st.title("Simulador Fiscal")
     st.write("Estratégia e Inteligência Tributária para o seu negócio.")
 
@@ -109,7 +110,6 @@ with c2:
         'Categoria': ['Líquido', 'IVA', 'INSS'],
         'Valor': [valor_liquido, valor_imposto, inss]
     })
-    # Correção do erro de cor: usamos 'Categoria' para mapear as cores automaticamente
     st.bar_chart(df_chart, x='Categoria', y='Valor', color='Categoria')
 
 st.divider()
@@ -130,16 +130,13 @@ if st.button("Gerar Relatório de Planejamento"):
     st.download_button(
         label="📥 Clique aqui para baixar o PDF",
         data=bytes(pdf_res),
-        file_name="Planejamento_Elton_Leblon.pdf",
+        file_name="Planejamento_Fiscal.pdf",
         mime="application/pdf"
     )
 
-# RODAPÉ PERSONALIZADO
+# RODAPÉ
 st.markdown("""
     <div class="footer">
-        <p>Desenvolvido por <b>Elton Leblon</b> | 
-        <a href="https://wa.me/seunumeroaqui" target="_blank">WhatsApp</a> | 
-        <a href="https://linkedin.com/in/seulink" target="_blank">LinkedIn</a> | 
-        © 2025 Planejamento Fiscal 2026</p>
+        <p>© 2025 Simulador Fiscal | Planejamento Tributário 2026</p>
     </div>
     """, unsafe_allow_html=True)
